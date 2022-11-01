@@ -37,42 +37,6 @@ packages <- c("esc",
 
 lapply(packages, require, character.only = TRUE)
 
-# custom function for extracting mean and CI from each metafor model
-estimates.CI <- function(model){
-  db.mf <- data.frame(model$b,row.names = 1:nrow(model$b))
-  db.mf <- cbind(db.mf,model$ci.lb,model$ci.ub,row.names(model$b))
-  names(db.mf) <- c("mean","lower","upper","estimate")
-  return(db.mf[,c("estimate","mean","lower","upper")])
-}
-# custom function for extracting mean and CI for emmeans (marginalized means) 
-estimates.CI2 <- function(res){
-  db.mf <- data.frame(summary(res)[,2], row.names = 1:length( summary(res)[,2]))
-  db.mf <- cbind(db.mf,summary(res)[,5],summary(res)[,6],paste0(names(res@levels),summary(res)[,1] ))
-  names(db.mf) <- c("mean","lower","upper","estimate")
-  return(db.mf[,c("estimate","mean","lower","upper")])
-}
-
-R2 <- function(model){
-  warning("Make sure you have the observation (effec size) level random effect as the last in the formula\n")
-  
-  # fixed effect variance
-  fix <- var(as.numeric(as.vector(model$b) %*% t(as.matrix(model$X))))
-  
-  # marginal
-  R2m <- fix / (fix + sum(model$sigma2))
-  R2
-  #Rm <- round(100*R2m, 3)
-  
-  # conditional
-  R2c <- (fix + sum(model$sigma2) - model$sigma2[length(model$sigma2)]) / 
-    (fix + sum(model$sigma2))
-  
-  R2s <- c(R2_marginal = R2m, R2_coditional = R2c)
-  
-  return(R2s)
-}
-
-
 #Pre1 - Extract data with metadigitise or shiny#########
 
 data <- shinyDigitise(dir = "Desktop")
